@@ -1,83 +1,126 @@
-/*----------------------------------------------------------------------------*/
 /*                                                                            */
 /*    Module:       main.cpp                                                  */
-/*    Author:       Melissa Ruiz                                              */
-/*    Created:      12/16/2024, 4:47:55 PM                                    */
+/*    Author:       Melissa Ruiz                                            */
+/*    Created:      14/3/2024, 11:48:05                                       */
 /*    Description:  V5 project                                                */
 /*                                                                            */
-/*----------------------------------------------------------------------------*/
-
 
 #include "vex.h"
+
+// Inicialización de objetos del dispositivo VEX
 using namespace vex;
 
-// Configuración del cerebro y el controlador
+// Configuración del cerebro, controlador y motores
 brain Brain;
 controller Controller1;
 
-vex::pneumatics Pinza(Brain.ThreeWirePort.A); 
-// Motores del lado izquierdo
-motor MotorL1(PORT14, false); 
-motor MotorL2(PORT13, false);
-motor MotorL3(PORT12, true);
-motor MotorL4(PORT11, true);
+// Motores del lado izquierdo (puertos 1-4)
+motor LeftMotor1(PORT14, true); 
+motor LeftMotor2(PORT18, false);
+motor LeftMotor3(PORT19, false);
+motor LeftMotor4(PORT20, true);
+motor_group Left(LeftMotor1, LeftMotor2, LeftMotor3, LeftMotor4);
 
-// Motores del lado derecho
-motor MotorR1(PORT4, true);
-motor MotorR2(PORT3, true);
-motor MotorR3(PORT2, false);
-motor MotorR4(PORT1, false);
+// Motores del lado derecho (puertos 7-10)
+motor RightMotor1(PORT7, false);
+motor RightMotor2(PORT8, true);
+motor RightMotor3(PORT9, true);
+motor RightMotor4(PORT10, false);
+motor_group Right(RightMotor1, RightMotor2, RightMotor3, RightMotor4);
 
-// Funciones auxiliares
-void setLeftMotors(double speed) {
-    MotorL1.spin(directionType::fwd, speed, velocityUnits::pct);
-    MotorL2.spin(directionType::fwd, speed, velocityUnits::pct);
-    MotorL3.spin(directionType::fwd, speed, velocityUnits::pct);
-    MotorL4.spin(directionType::fwd, speed, velocityUnits::pct);
+// Motor para el sistema de recolección
+motor Recolector(PORT1, true);
+motor Rampa(PORT12, true);
+
+// Modo de control
+int controlMode = 0;
+
+// Función para cambiar el modo de control
+void switchControlMode() {
+    controlMode = (controlMode + 1) % 4;
+    Brain.Screen.clearScreen();
+    Brain.Screen.print("Modo de control: %d", controlMode);
 }
 
-void setRightMotors(double speed) {
-    MotorR1.spin(directionType::fwd, speed, velocityUnits::pct);
-    MotorR2.spin(directionType::fwd, speed, velocityUnits::pct);
-    MotorR3.spin(directionType::fwd, speed, velocityUnits::pct);
-    MotorR4.spin(directionType::fwd, speed, velocityUnits::pct);
+// Función para controlar con dos joysticks
+void twoJoysticksControl() {
+    int leftSpeed = Controller1.Axis3.position()+Controller1.Axis1.position();
+    int rightSpeed = Controller1.Axis3.position()- Controller1.Axis1.position();
+    Left.spin(forward, leftSpeed, percent);
+    Right.spin(forward, rightSpeed, percent);
 }
 
-void stopAllMotors() {
-    MotorL1.stop();
-    MotorL2.stop();
-    MotorL3.stop();
-    MotorL4.stop();
-    MotorR1.stop();
-    MotorR2.stop();
-    MotorR3.stop();
-    MotorR4.stop();
+// Función para controlar con un joystick
+void singleJoystickControl() {
+    int forwardSpeed = Controller1.Axis3.position();
+    int turnSpeed = Controller1.Axis4.position();
+    Left.spin(forward, forwardSpeed + turnSpeed, percent);
+    Right.spin(forward, forwardSpeed - turnSpeed, percent);
 }
 
-// Función para el control manual del robot
-void driverControl() {
-    while (true) {
-        // Leer los valores de los joysticks
-        double leftSpeed = Controller1.Axis3.position()+Controller1.Axis1.position();
-        double rightSpeed = Controller1.Axis3.position()- Controller1.Axis1.position();
-        // Controlar los motores con los joysticks
-        setLeftMotors(leftSpeed);
-        setRightMotors(rightSpeed);
-
-        // Pequeña pausa para evitar sobrecarga del bucle
-        wait(20, msec);
+// Función para controlar con las flechas
+void arrowControl() {
+    if (Controller1.ButtonUp.pressing()) {
+        Left.spin(forward, 100, percent);
+        Right.spin(forward, 100, percent);
+    } else if (Controller1.ButtonDown.pressing()) {
+        Left.spin(reverse, 100, percent);
+        Right.spin(reverse, 100, percent);
+    } else if (Controller1.ButtonLeft.pressing()) {
+        Left.spin(reverse, 100, percent);
+        Right.spin(forward, 100, percent);
+    } else if (Controller1.ButtonRight.pressing()) {
+        Left.spin(forward, 100, percent);
+        Right.spin(reverse, 100, percent);
+    } else {
+        Left.stop();
+        Right.stop();
     }
 }
 
+void joystickNewControl(){
+  int leftSpeed=Controller1.Axis3.position(); 
+  int rightSpeed = Controller1.Axis2.position(); 
+  Left.spin(forward, leftSpeed, percent);
+  Right.spin(forward, rightSpeed, percent); 
+}
 
-// Programa principal
+// Función principal
 int main() {
-    // Iniciar control manual
-    driverControl();
-    if (Controller1.ButtonR1.pressing()){
-        Pinza.open();
-    }else if(Controller1.ButtonR2.pressing()){
-        Pinza.close(); 
+    while (true) {
+        // Cambiar el modo de control con el botón A
+        if (Controller1.ButtonA.pressing()) {
+            switchControlMode();
+            while (Controller1.ButtonA.pressing()) {
+                // Esperar a que se suelte el botón A
+                task::sleep(10);
+            }
+        }
+
+        // Control del robot basado en el modo seleccionado
+        if (controlMode == 0) {
+            twoJoysticksControl();
+        } else if (controlMode == 1) {
+            singleJoystickControl();
+        } else if (controlMode == 2) {
+            arrowControl();
+        }else if(controlMode == 3){
+          joystickNewControl(); 
+        }
+
+        // Control del motor recolector y rampa usando L1 y L2
+        if (Controller1.ButtonL1.pressing()) {
+            Recolector.spin(directionType::fwd, 100, velocityUnits::pct);
+            Rampa.spin(directionType::fwd, 65, velocityUnits::pct);
+        } else if (Controller1.ButtonL2.pressing()) {
+            Recolector.spin(directionType::rev, 100, velocityUnits::pct);
+            Rampa.spin(directionType::rev, 65, velocityUnits::pct);
+        } else {
+            Recolector.stop(brakeType::hold);
+            Rampa.stop(brakeType::hold);
+        }
+
+        // Espera para evitar saturar el CPU
+        task::sleep(20);
     }
-    return 0;
 }
