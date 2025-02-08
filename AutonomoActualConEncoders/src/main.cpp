@@ -92,47 +92,53 @@ void stopAllMotors() {
 // Funciones de movimiento
 
 void universalMove(double distanceInInches, double leftSpeed, double rightSpeed, double collectionSpeed) {
+    // Resetear los encoders al inicio
     resetEncoders();
-    Inercial.setHeading(0, degrees);
 
-    Recolector.spin(reverse, collectionSpeed, percent);
-    Rampa.spin(reverse, collectionSpeed, percent);
-
+    // Ajustar la distancia de acuerdo con el error relativo
     distanceInInches = (1.0 - RELATIVE_DISTANCE_ERROR) * distanceInInches;
+
+    // Calcular las rotaciones necesarias de acuerdo a la distancia
     double targetRotations = (distanceInInches / WHEEL_CIRCUMFERENCE) * 360;
 
+    // Iniciar los motores con la velocidad indicada
     setLeftMotors(leftSpeed);
     setRightMotors(rightSpeed);
 
+    // Si se especifica, iniciar los motores para el sistema de recolección
+    Recolector.spin(reverse, collectionSpeed, percent);
+    Rampa.spin(reverse, collectionSpeed, percent);
+
+    // Mientras los motores no hayan alcanzado la distancia deseada, continuar moviendo
     while (fabs(MotorL1.position(rotationUnits::deg)) < targetRotations &&
            fabs(MotorR1.position(rotationUnits::deg)) < targetRotations) {
-        double error = Inercial.heading(); 
-        setLeftMotors(leftSpeed + error * 0.5);
-        setRightMotors(rightSpeed + error * 0.5);
-        wait(10, msec);
+        // Esperar un corto tiempo para permitir que los motores avancen
+        task::sleep(10);
     }
+
+    // Detener todos los motores al finalizar el movimiento
     stopAllMotors();
 }
 void rotateOnAxis(double targetDegrees, double speed) {
-    // Reiniciar el sensor de inercia
+    // Resetear los encoders al inicio
     resetEncoders();
-    Inercial.resetRotation();
-    // Determinar el sentido de giro (positivo para derecha, negativo para izquierda)
-    double direction = targetDegrees > 0 ? 1.0 : -1.0;
 
-    speed = speed*direction; 
+    // Calcular las rotaciones necesarias para alcanzar el ángulo objetivo
+    double targetRotations = (targetDegrees / 360) * (TRACK_WIDTH * M_PI / WHEEL_DIAMETER) * 360;
 
-    // Configurar los motores para girar
-    setLeftMotors(speed); 
-    setRightMotors(-speed); 
+    // Iniciar los motores para girar a la velocidad indicada
+    setLeftMotors((targetDegrees > 0) ? speed : -speed);
+    setRightMotors((targetDegrees > 0) ? -speed : speed);
 
-    // Bucle para ajustar el giro
-    while (fabs(Inercial.rotation(degrees)) < fabs(targetDegrees)) {
-        wait(10, msec);
+    // Mientras los motores no hayan alcanzado el número de rotaciones necesario, continuar girando
+    while (fabs(MotorL1.position(rotationUnits::deg)) < targetRotations &&
+           fabs(MotorR1.position(rotationUnits::deg)) < targetRotations) {
+        // Esperar un corto tiempo para permitir que los motores avancen
+        task::sleep(10);
     }
 
-    // Detener los motores al alcanzar el ángulo deseado
-    stopAllMotors(); 
+    // Detener todos los motores al finalizar la rotación
+    stopAllMotors();
 }
 void recoleccion(int speed,double duration) {
   Recolector.spin(reverse, speed, percent);
