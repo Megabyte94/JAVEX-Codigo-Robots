@@ -186,6 +186,9 @@ int main() {
     //1----------
     // Secuencia de movimientos
 
+    Brazo.open();
+    Brazo.close();
+
     // Mover hacia adelante 12 pulgadas a 70% de velocidad
     moveWithInertialSensor(12, 70);
 
