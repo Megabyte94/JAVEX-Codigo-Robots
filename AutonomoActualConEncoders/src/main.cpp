@@ -33,6 +33,7 @@ motor Garra(PORT15, true);
 
 vex::pneumatics Pinza(Brain.ThreeWirePort.A);
 vex::pneumatics RecolectorNeumatica(Brain.ThreeWirePort.B);
+vex::pneumatics Brazo(Brain.ThreeWirePort.C);
 
 // Funciones auxiliares
 void stopAllMotors() {
@@ -153,6 +154,24 @@ void moveWithInertialSensor(double distanceInInches, double speed) {
 
     // Detener todos los motores al finalizar el movimiento
     stopAllMotors();
+}
+
+
+void recoleccion(int speed,double duration) {
+  Recolector.spin(reverse, speed, percent);
+  Rampa.spin(reverse, speed, percent);
+  wait(duration, seconds);
+  stopAllMotors();
+}
+void garrita(int speed,double duration) {
+  Garra.spin(reverse, speed, percent);
+  wait(duration, seconds);
+  stopAllMotors();
+}
+void brazo(int speed,double duration) {
+  Brazo.spin(reverse, speed, percent);
+  wait(duration, seconds);
+  stopAllMotors();
 }
 
 
