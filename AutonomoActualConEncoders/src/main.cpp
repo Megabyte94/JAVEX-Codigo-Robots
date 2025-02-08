@@ -158,20 +158,15 @@ void moveWithInertialSensor(double distanceInInches, double speed) {
 
 
 void recoleccion(int speed,double duration) {
-  Recolector.spin(reverse, speed, percent);
-  Rampa.spin(reverse, speed, percent);
-  wait(duration, seconds);
-  stopAllMotors();
+    Recolector.spin(reverse, speed, percent);
+    Rampa.spin(reverse, speed, percent);
+    wait(duration, seconds);
+    stopAllMotors();
 }
 void garrita(int speed,double duration) {
-  Garra.spin(reverse, speed, percent);
-  wait(duration, seconds);
-  stopAllMotors();
-}
-void brazo(int speed,double duration) {
-  Brazo.spin(reverse, speed, percent);
-  wait(duration, seconds);
-  stopAllMotors();
+    Garra.spin(reverse, speed, percent);
+    wait(duration, seconds);
+    stopAllMotors();
 }
 
 
