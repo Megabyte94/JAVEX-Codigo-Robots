@@ -52,9 +52,9 @@ void autonomous(void) {
   // Insert autonomous user code here.
   // ..........................................................................
 
-  //driveForDistance(24, 50, 5000, Callbacks(), {});
-
-  parabolicMove(24, 100, 50, 5000, Callbacks(), {});
+  driveForDistance(24, 100, 5000, Callbacks(), {});
+  turnForDegrees(180, 100, 5000, Callbacks(), {});
+  //parabolicMove(24, 100, 50, 5000, Callbacks(), {});
 
   /* /*PASO 1* 
   //1. Va hacia adelante por la estaca
