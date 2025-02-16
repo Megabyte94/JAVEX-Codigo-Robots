@@ -1,6 +1,7 @@
 #include "vex.h"
 #include <vector>
 #include <functional>
+#include <iostream>
 
 #pragma once // Para evitar errores de definición múltiple
 
@@ -65,42 +66,51 @@ bool driveForDistance(double distance, double speed, double timeout, Callbacks c
 }
 
 // Funcion para girar el robot
-bool turnForDegrees(double grados, double speed, double timeout, Callbacks callbacks, double callbackBreakpoints[]) {
+// Función para girar el robot en su propio eje usando la conversión de distancia a grados de rotación
+bool turnForDegrees(double angulo, double speed, double timeout, Callbacks callbacks, double callbackBreakpoints[]) {
     bool success = false;
+
     // Reseteamos los encoders al inicio
     resetDriveEncoders();
-    // Crear el temporizador para saber cuanto tiempo ha pasado
+
+    // Crear el temporizador para saber cuánto tiempo ha pasado
     timer t;
     t.clear();
+
+    const double distancia = (ROBOT_CIRCUMFERENCE_LENGTH / 360) * angulo;
     
-    // Damos una referencia al motor, para que se mueva a una posicion a una velocidad determinada
-    LeftMotors.spinToPosition(grados, degrees, speed, rpm);
+    // Calcular la distancia en grados de rotación (convertimos la distancia a grados)
+    const double grados = distancia * DEGREES_PER_INCH;
+
+    // Damos una referencia al motor, para que se mueva a una posición a una velocidad determinada
+    LeftMotors.spinToPosition(grados, degrees, speed, rpm, false);
     RightMotors.spinToPosition(-grados, degrees, speed, rpm);
 
     int currentBreakpoint = 0;
 
-    // CREAMOS UN BUCLE PARA ESPERAR HASTA QUE EL ROBOT LLEGUE A LA DISTANCIA DESEADA O HASTA QUE PASE EL TIMEOUT
-    while (LeftMotors.isSpinning() || RightMotors.isSpinning()){   
-        // PROTEGEMOS POR TIEMPO
+    // Creamos un bucle para esperar hasta que el robot llegue a la distancia deseada o hasta que pase el timeout
+    while (LeftMotors.isSpinning() || RightMotors.isSpinning()) {
+        // Protegemos por tiempo
         if(t.time(msec) > timeout) {
             return success;
         }
-        // LLAMAMOS A LOS CALLBACKS
-        // Si hay callbacks
+
+        // Llamamos a los callbacks
         if(callbacks.size() > 0 && currentBreakpoint < callbacks.size()) {
-            // Vamos a preguntar si ya es momento del primer callback
+            Brain.Screen.print("Callback %d ejecutado", currentBreakpoint);
             if(LeftMotors.position(degrees) >= callbackBreakpoints[currentBreakpoint]) {
-                // Llamamos al callback
                 callbacks[currentBreakpoint]();
-                // Incrementamos el breakpoint
                 currentBreakpoint++;
             }
         }
-        wait(20, msec);
+
+        wait(20, msec);  // Esperar un poco antes de comprobar nuevamente
     }
+    
     success = true;
     return success;
 }
+
 
 bool parabolicMove(double distance, double speedX, double speedY, double timeout, Callbacks callbacks, double callbackBreakpoints[]) {
     bool success = false;
@@ -161,5 +171,6 @@ std::function<void()>recoleccion(int speed, double duration) {
     return [speed, duration](){
         Recolector.spin(reverse, speed, percent);
         Rampa.spin(reverse, speed, percent);
+        Brain.Screen.print("Recolector encendido");
     }; 
 }

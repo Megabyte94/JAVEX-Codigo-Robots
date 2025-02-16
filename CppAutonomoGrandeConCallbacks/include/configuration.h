@@ -24,6 +24,7 @@ const double WHEEL_DIAMETER = 4.0;
 const double WHEEL_BASE = 12.0;
 const double WHEEL_CIRCUMFERENCE = 3.14159 * WHEEL_DIAMETER;
 const double DEGREES_PER_INCH = 360 / WHEEL_CIRCUMFERENCE;
+const double ROBOT_CIRCUMFERENCE_LENGTH = 48;
 
 //  ____________________
 // |  [LA1]    [RA1]    |
