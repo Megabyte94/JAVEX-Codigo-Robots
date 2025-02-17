@@ -10,6 +10,9 @@
 using namespace vex;
 using Callbacks = std::vector<std::function<void()>>;
 
+using std::cout;
+using std::endl;
+
 
 // Funcion para resetear los encoders de los motores
 void resetDriveEncoders() {
@@ -87,9 +90,24 @@ bool turnForDegrees(double angulo, double speed, double timeout, Callbacks callb
     RightMotors.spinToPosition(-grados, degrees, speed, rpm);
 
     int currentBreakpoint = 0;
+    
+    wait(10, msec);
+
+    Brain.Screen.print("Prueba 1");
+    printf("Prueba 1");
+    cout << "Prueba 1" << endl;
+    wait(10, msec);
+
+    cout << "LeftMotors spinning: " << LeftMotors.isSpinning() << endl;
+    cout << "RightMotors isDone: " << RightMotors.isDone() << endl;
+
 
     // Creamos un bucle para esperar hasta que el robot llegue a la distancia deseada o hasta que pase el timeout
-    while (LeftMotors.isSpinning() || RightMotors.isSpinning()) {
+    while (LeftMotors.isSpinning() || RightMotors.isDone()) {
+        Brain.Screen.print("Prueba 2");
+        printf("Prueba 2");
+        cout << "Prueba 2" << endl;
+
         // Protegemos por tiempo
         if(t.time(msec) > timeout) {
             return success;
@@ -97,7 +115,6 @@ bool turnForDegrees(double angulo, double speed, double timeout, Callbacks callb
 
         // Llamamos a los callbacks
         if(callbacks.size() > 0 && currentBreakpoint < callbacks.size()) {
-            Brain.Screen.print("Callback %d ejecutado", currentBreakpoint);
             if(LeftMotors.position(degrees) >= callbackBreakpoints[currentBreakpoint]) {
                 callbacks[currentBreakpoint]();
                 currentBreakpoint++;
@@ -106,6 +123,10 @@ bool turnForDegrees(double angulo, double speed, double timeout, Callbacks callb
 
         wait(20, msec);  // Esperar un poco antes de comprobar nuevamente
     }
+    wait(10, msec);
+    Brain.Screen.print("Callback %d ejecutado", currentBreakpoint);
+    printf("Callback %d ejecutado", currentBreakpoint);
+    cout << "Callback " << currentBreakpoint << " ejecutado" << endl;
     
     success = true;
     return success;
