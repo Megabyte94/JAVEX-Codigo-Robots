@@ -13,7 +13,9 @@ using Callbacks = std::vector<std::function<void()>>;
 using std::cout;
 using std::endl;
 
-// Funcion para encender la Recoleccion
+//---------------- FUNCIONES DE MOVIMIENTO ----------------
+
+// Funcion para encender la Recoleccion (sin tiempo)
 std::function<void()>recoleccion(int speed/*, double duration*/) {
     return [speed](){
         Recolector.spin(reverse, speed, percent);
@@ -21,9 +23,15 @@ std::function<void()>recoleccion(int speed/*, double duration*/) {
         Brain.Screen.print("Recolector encendido");
     }; 
 }
-
-// Funcion para levantar el Brazo
-// TODO
+// Funcion para encender la Recoleccion (con tiempo)
+void recoleccionTemporizada(int speed, double duration) {
+    Recolector.spin(reverse, speed, percent);
+    Rampa.spin(reverse, speed, percent);
+    wait(duration, seconds);
+    Recolector.stop();
+    Rampa.stop();
+    Brain.Screen.print("Recolector apagado");
+}
 
 /*
 // Funcion para la garra
@@ -59,8 +67,103 @@ void stopAllMotors() {
     MotorR4.stop();
     Recolector.stop();
     Rampa.stop();
-    Brazo.close();
+    //Brazo.close();
 }
+
+// Funcion para mover el robot una distancia
+void moveDistanceVIEJO(double distanceInInches, double speed, bool activarRecoleccion, std::string movimientoBrazo) {
+    resetDriveEncoders();
+
+    if (activarRecoleccion) {
+        Recolector.spin(reverse, 100, percent);
+        Rampa.spin(reverse, 100, percent);
+    }
+    if (movimientoBrazo == "openArm") {
+        Brazo.open();
+    }
+    else if (movimientoBrazo == "closeArm") {
+        Brazo.close();
+    }
+
+    RecolectorNeumatica.close();
+
+    distanceInInches = (1.0 - RELATIVE_DISTANCE_ERROR) * distanceInInches;
+
+    double targetRotations = (distanceInInches / WHEEL_CIRCUMFERENCE) * 360;
+
+    LeftMotors.spin(forward, speed, percent);
+    RightMotors.spin(forward, speed, percent);
+
+    while (fabs(MotorL1.position(rotationUnits::deg)) < targetRotations &&
+           fabs(MotorR1.position(rotationUnits::deg)) < targetRotations) {
+        task::sleep(10);
+    }
+    stopAllMotors();
+}
+
+// Funcion para mover el robot de forma parabólica
+void moveParabolicVIEJO(double distanceInInches, double speedleft, double speedRight, bool activarRecoleccion, std::string movimientoBrazo) {
+    resetDriveEncoders();
+
+    distanceInInches = (1.0 - RELATIVE_DISTANCE_ERROR) * distanceInInches;
+
+    double targetRotations = (distanceInInches / WHEEL_CIRCUMFERENCE) * 360;
+
+    LeftMotors.spin(forward, speedleft, percent);
+    RightMotors.spin(forward, speedRight, percent);
+
+    // Activar recolección si es necesario
+    if (activarRecoleccion) {
+        Recolector.spin(reverse, 100, percent);
+        Rampa.spin(reverse, 100, percent);
+    }
+
+    if (movimientoBrazo == "openArm") {
+        Brazo.open();
+    }
+    else if (movimientoBrazo == "closeArm") {
+        Brazo.close();
+    }
+
+    while (fabs(MotorL1.position(rotationUnits::deg)) < targetRotations &&
+           fabs(MotorR1.position(rotationUnits::deg)) < targetRotations) {
+        task::sleep(10);
+    }
+    stopAllMotors();
+}
+
+// Haz una función cómo la de turnForDegrees pero que se llame turnForAngle y que no tenga timeout ni callbacks
+// EN RPM
+void turnForAngle(double angulo, double speed, bool activarRecolección, std::string movimientoBrazo) {
+    // Reseteamos los encoders al inicio
+    resetDriveEncoders();
+
+    // Activar recolección si es necesario
+    if (activarRecolección) {
+        Recolector.spin(reverse, 100, percent);
+        Rampa.spin(reverse, 100, percent);
+    }
+
+    if (movimientoBrazo == "openArm") {
+        Brazo.open();
+    }
+    else if (movimientoBrazo == "closeArm") {
+        Brazo.close();
+    }
+
+    const double distancia = (ROBOT_CIRCUMFERENCE_LENGTH / 360) * angulo;
+    
+    // Calcular la distancia en grados de rotación (convertimos la distancia a grados)
+    const double grados = distancia * DEGREES_PER_INCH;
+
+    // Damos una referencia al motor, para que se mueva a una posición a una velocidad determinada
+    LeftMotors.spinToPosition(grados, degrees, speed, rpm, false);
+    RightMotors.spinToPosition(-grados, degrees, speed, rpm);
+
+    waitUntil(!LeftMotors.isSpinning() && !RightMotors.isSpinning());
+}
+
+// FUNCIONES NÉSTOR (NO USADAS):
 
 // Funcion para mover el robot hacia adelante
 bool driveForDistance(double distance, double speed, double timeout, bool activarRecoleccion, Callbacks callbacks, double callbackBreakpoints[]) {
@@ -106,31 +209,8 @@ bool driveForDistance(double distance, double speed, double timeout, bool activa
     return success;
 }
 
-// Funcion para mover el robot de forma parabólica
-void moveParabolic(double distanceInInches, double speedleft, double speedRight, bool activarRecoleccion) {
-    resetDriveEncoders();
-
-    distanceInInches = (1.0 - RELATIVE_DISTANCE_ERROR) * distanceInInches;
-
-    double targetRotations = (distanceInInches / WHEEL_CIRCUMFERENCE) * 360;
-
-    LeftMotors.spin(forward, speedleft, percent);
-    RightMotors.spin(forward, speedRight, percent);
-
-    // Activar recolección si es necesario
-    if (activarRecoleccion) {
-        recoleccion(100);
-    }
-
-    while (fabs(MotorL1.position(rotationUnits::deg)) < targetRotations &&
-           fabs(MotorR1.position(rotationUnits::deg)) < targetRotations) {
-        task::sleep(10);
-    }
-    stopAllMotors();
-}
-
 // Función para girar el robot en su propio eje usando la conversión de distancia a grados de rotación
-bool turnForDegrees(double angulo, double speed, double timeout, Callbacks callbacks, double callbackBreakpoints[]) {
+bool turnForDegrees(double angulo, double speed, double timeout, bool activarRecolección, std::string movimientoBrazo, Callbacks callbacks, double callbackBreakpoints[]) {
     bool success = false;
 
     // Reseteamos los encoders al inicio
@@ -139,6 +219,19 @@ bool turnForDegrees(double angulo, double speed, double timeout, Callbacks callb
     // Crear el temporizador para saber cuánto tiempo ha pasado
     timer t;
     t.clear();
+
+    // Activar recolección si es necesario
+    if (activarRecolección) {
+        Recolector.spin(reverse, 100, percent);
+        Rampa.spin(reverse, 100, percent);
+    }
+
+    if (movimientoBrazo == "openArm") {
+        Brazo.open();
+    }
+    else if (movimientoBrazo == "closeArm") {
+        Brazo.close();
+    }
 
     const double distancia = (ROBOT_CIRCUMFERENCE_LENGTH / 360) * angulo;
     
@@ -153,10 +246,10 @@ bool turnForDegrees(double angulo, double speed, double timeout, Callbacks callb
     
     wait(10, msec);
 
-    Brain.Screen.print("Prueba 1");
+    /* Brain.Screen.print("Prueba 1");
     printf("Prueba 1");
     cout << "Prueba 1" << endl;
-    wait(10, msec);
+    wait(10, msec); */
 
     cout << "LeftMotors spinning: " << LeftMotors.isSpinning() << endl;
     cout << "RightMotors isDone: " << RightMotors.isDone() << endl;
@@ -164,9 +257,9 @@ bool turnForDegrees(double angulo, double speed, double timeout, Callbacks callb
 
     // Creamos un bucle para esperar hasta que el robot llegue a la distancia deseada o hasta que pase el timeout
     while (LeftMotors.isSpinning() || RightMotors.isDone()) {
-        Brain.Screen.print("Prueba 2");
+        /* Brain.Screen.print("Prueba 2");
         printf("Prueba 2");
-        cout << "Prueba 2" << endl;
+        cout << "Prueba 2" << endl; */
 
         // Protegemos por tiempo
         if(t.time(msec) > timeout) {
@@ -184,9 +277,9 @@ bool turnForDegrees(double angulo, double speed, double timeout, Callbacks callb
         wait(20, msec);  // Esperar un poco antes de comprobar nuevamente
     }
     wait(10, msec);
-    Brain.Screen.print("Callback %d ejecutado", currentBreakpoint);
+    /* Brain.Screen.print("Callback %d ejecutado", currentBreakpoint);
     printf("Callback %d ejecutado", currentBreakpoint);
-    cout << "Callback " << currentBreakpoint << " ejecutado" << endl;
+    cout << "Callback " << currentBreakpoint << " ejecutado" << endl; */
     
     success = true;
     return success;

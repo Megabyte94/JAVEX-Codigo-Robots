@@ -13,6 +13,7 @@ using namespace vex;
 // Modo de control
 int controlMode = 0;
 bool pistonAbierto = false;
+bool piston2Abierto = false; 
 
 // Función para cambiar el modo de control
 void switchControlMode() {
@@ -64,7 +65,7 @@ void joystickNewControl(){
 }
 
 // Función principal
-int main() {
+/* int main() {
     while (true) {
         // Cambiar el modo de control con el botón A
         if (Controller1.ButtonA.pressing()) {
@@ -98,15 +99,6 @@ int main() {
             Rampa.stop(brakeType::hold);
         }
 
-        /* // Control del motor recolector y rampa usando L1 y L2
-        if (Controller1.ButtonX.pressing()) {
-            Garra.spin(directionType::fwd, 100, velocityUnits::pct);
-        } else if (Controller1.ButtonY.pressing()) {
-            Garra.spin(directionType::rev, 100, velocityUnits::pct);
-        } else {
-            Garra.stop(brakeType::hold);
-        } */
-
         if(Controller1.ButtonR2.pressing())
         {
             // Esperamos a que el botón sea liberado para evitar múltiples activaciones en una sola pulsación
@@ -124,6 +116,24 @@ int main() {
                 Pinza.close();
             }
         }
+        
+        if(Controller1.ButtonB.pressing())
+        {
+            // Esperamos a que el botón sea liberado para evitar múltiples activaciones en una sola pulsación
+            while(Controller1.ButtonB.pressing()) {
+                // Espera a que el botón se suelte
+            }
+
+            // Cambiamos el estado del pistón
+            pistonAbierto = !pistonAbierto;
+            
+            // Ejecutamos la acción correspondiente
+            if(pistonAbierto) {
+                brazo.open();
+            } else {
+                brazo.close();
+            }
+        }
 
         if(Controller1.ButtonR1.pressing())
         {
@@ -133,13 +143,13 @@ int main() {
             }
 
             // Cambiamos el estado del pistón
-            pistonAbierto = !pistonAbierto;
+            piston2Abierto = !piston2Abierto;
             
             // Ejecutamos la acción correspondiente
-            if(pistonAbierto) {
-                NeumaticaRecolector.open();
+            if(piston2Abierto) {
+                RecolectorNeumatica.open();
             } else {
-                NeumaticaRecolector.close();
+                RecolectorNeumatica.close();
             }
         }
 
@@ -148,4 +158,4 @@ int main() {
         // Espera para evitar saturar el CPU
         task::sleep(20);
     }
-}
+} */
