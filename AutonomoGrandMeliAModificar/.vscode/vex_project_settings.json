@@ -1,0 +1,19 @@
+{
+	"extension": {
+		"version": "0.6.1",
+		"json": 2
+	},
+	"project": {
+		"name": "AutonomoGrande",
+		"description": "",
+		"creationDate": "2/12/2025, 2:24:08 PM",
+		"platform": "V5",
+		"language": "cpp",
+		"slot": 5,
+		"sdkVersion": "V5_20240802_15_00_00",
+		"cpp": {
+			"includePath": [],
+			"printf_float": true
+		}
+	}
+}

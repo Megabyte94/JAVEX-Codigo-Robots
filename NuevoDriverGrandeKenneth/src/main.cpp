@@ -37,7 +37,9 @@ motor MotorPrueba4(PORT4, false);
 
 // Motor para el sistema de recolección
 motor Recolector(PORT15, true);
+motor Recolector2(PORT3, false);
 motor Rampa(PORT12, false);
+motor Garra(PORT13, true);
 
 vex::pneumatics Pinza(Brain.ThreeWirePort.A);
 vex::pneumatics RecolectorNeumatica(Brain.ThreeWirePort.B);
@@ -100,25 +102,6 @@ void joystickNewControl(){
   Right.spin(forward, rightSpeed, percent); 
 }
 
-// Función para controlar los motores de prueba con los botones X y Y
-void controlMotoresPrueba() {
-    if (Controller1.ButtonX.pressing()) {
-        MotorPrueba1.spin(forward, 100, percent);
-        MotorPrueba2.spin(forward, 100, percent);
-        MotorPrueba3.spin(forward, 100, percent);
-        MotorPrueba4.spin(forward, 100, percent);
-    } else if (Controller1.ButtonY.pressing()) {
-        MotorPrueba1.spin(reverse, 100, percent);
-        MotorPrueba2.spin(reverse, 100, percent);
-        MotorPrueba3.spin(reverse, 100, percent);
-        MotorPrueba4.spin(reverse, 100, percent);
-    } else {
-        MotorPrueba1.stop();
-        MotorPrueba2.stop();
-        MotorPrueba3.stop();
-        MotorPrueba4.stop();
-    }
-}
 
 // Función principal
 int main() {
@@ -146,12 +129,15 @@ int main() {
         // Control del motor recolector y rampa usando L1 y L2
         if (Controller1.ButtonL1.pressing()) {
             Recolector.spin(directionType::fwd, 100, velocityUnits::pct);
+            Recolector2.spin(directionType::fwd, 100, velocityUnits::pct);
             Rampa.spin(directionType::fwd, 100, velocityUnits::pct);
         } else if (Controller1.ButtonL2.pressing()) {
             Recolector.spin(directionType::rev, 100, velocityUnits::pct);
+            Recolector2.spin(directionType::rev, 100, velocityUnits::pct);
             Rampa.spin(directionType::rev, 100, velocityUnits::pct);
         } else {
             Recolector.stop(brakeType::hold);
+            Recolector2.stop(brakeType::hold);
             Rampa.stop(brakeType::hold);
         }
 
@@ -206,9 +192,14 @@ int main() {
             }
         }
 
-        // Control de los motores de prueba con los botones X y Y
-        controlMotoresPrueba();
-
+        // Control del motor recolector y rampa usando L1 y L2
+        if (Controller1.ButtonUp.pressing()) {
+            Garra.spin(directionType::fwd, 100, velocityUnits::pct);
+        } else if (Controller1.ButtonDown.pressing()) {
+            Garra.spin(directionType::rev, 100, velocityUnits::pct);
+        } else {
+            Garra.stop(brakeType::hold);
+        }
         // Espera para evitar saturar el CPU
         task::sleep(20);
     }
