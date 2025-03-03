@@ -47,8 +47,34 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-  moveParabolic(42, 80, 50);
-  rotateOnAxisN(55, 100);
+  /*moveParabolic(42, 80, 50);
+  rotateOnAxisN(55, 100);*/
+
+  RecolectorNeumatica.open();
+  //wait(15000,msec);
+  activarMotorFantasma(100, 10);
+  //moveDistance(27.5, -100);
+  moveParabolic(40, -100, -100);
+  rotateOnAxis(19, 100);
+  //moveDistance(15,-100);
+  moveParabolic(30, -100, -50);
+
+  recoleccion(100, 2);
+  recoleccion(-100, 1);
+  moveParabolic(40, 100, 60);
+
+    /* RecolectorNeumatica.open();
+    //wait(10000,msec);
+    garrita(100, 10);
+    //moveDistance(27.5, -100);
+    moveParabolic(42.5, -100, -100);
+    rotateOnAxis(19, 100);
+    //moveDistance(15,-100);
+    moveParabolic(30, -100, -80);
+    recoleccion(-100, 2);
+    recoleccion(100, 2);
+    moveParabolic(25, 100, 80);
+    moveParabolic(25, 100, 80); */
 }
 
 /*---------------------------------------------------------------------------*/
@@ -82,15 +108,15 @@ void usercontrol(void) {
     if (Controller1.ButtonL1.pressing()) {
         Recolector.spin(directionType::rev, 100, velocityUnits::pct);
         Rampa.spin(directionType::rev, 100, velocityUnits::pct);
-        Recolector2.spin(directionType::rev, 100, velocityUnits::pct);
+        //Recolector2.spin(directionType::rev, 100, velocityUnits::pct);
     } else if (Controller1.ButtonL2.pressing()) {
         Recolector.spin(directionType::fwd, 100, velocityUnits::pct);
         Rampa.spin(directionType::fwd, 100, velocityUnits::pct);
-        Recolector2.spin(directionType::fwd, 100, velocityUnits::pct);
+        //Recolector2.spin(directionType::fwd, 100, velocityUnits::pct);
     } else {
         Recolector.stop(brakeType::hold);
         Rampa.stop(brakeType::hold);
-        Recolector2.stop(brakeType::hold);
+        //Recolector2.stop(brakeType::hold);
     }
   
     // Control del motor recolector y rampa usando L1 y L2
@@ -167,12 +193,11 @@ void usercontrol(void) {
 //
 int main() {
   // Set up callbacks for autonomous and driver control periods.
-  //Competition.autonomous(autonomous);
-  //Competition.drivercontrol(usercontrol);
+  Competition.autonomous(autonomous);
+  Competition.drivercontrol(usercontrol);
 
   // Run the pre-autonomous function.
   pre_auton();
-  autonomous();
 
   // Prevent main from exiting with an infinite loop.
   while (true) {

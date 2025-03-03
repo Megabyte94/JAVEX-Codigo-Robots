@@ -24,7 +24,7 @@ controller Controller1;
 
 // Motores del lado izquierdo (puertos 1-4)
 motor MotorL1(PORT13, false); 
-motor MotorL2(PORT15, true);
+motor MotorL2(PORT3, true);
 motor MotorL3(PORT11, false);
 motor MotorL4(PORT12, true);
 motor_group Left(MotorL1, MotorL2, MotorL3, MotorL4);
@@ -32,7 +32,7 @@ motor_group Left(MotorL1, MotorL2, MotorL3, MotorL4);
 // Motores del lado derecho (puertos 7-10)
 motor MotorR1(PORT4, true);
 motor MotorR2(PORT5, false);
-motor MotorR3(PORT3, true);
+motor MotorR3(PORT2, true);
 motor MotorR4(PORT6, false);
 motor_group Right(MotorR1, MotorR2, MotorR3, MotorR4);
 

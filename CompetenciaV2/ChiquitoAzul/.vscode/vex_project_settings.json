@@ -4,12 +4,12 @@
 		"json": 2
 	},
 	"project": {
-		"name": "Chiquito",
+		"name": "ChiquitoAzul",
 		"description": "",
 		"creationDate": "2/20/2025, 7:53:55 AM",
 		"platform": "V5",
 		"language": "cpp",
-		"slot": 5,
+		"slot": 2,
 		"sdkVersion": "V5_20240802_15_00_00",
 		"cpp": {
 			"includePath": [],

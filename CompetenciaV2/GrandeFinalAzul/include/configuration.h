@@ -1,3 +1,10 @@
+/*                                                                            */
+/*    Module:       main.cpp                                                  */
+/*    Author:       Kenneth Bustamante                                        */
+/*    Created:      14/3/2024, 11:48:05                                       */
+/*    Description:  V5 project                                                */
+/*                                                                            */
+
 #include "vex.h"
 #include <vector>
 #include <functional>
@@ -22,34 +29,31 @@ const double RELATIVE_DISTANCE_ERROR = 0.4445;
 brain Brain;
 controller Controller1;
 
-motor MotorNoExistente(PORT18, false);
 
 // Motores del lado izquierdo
-motor MotorL1(PORT13, false); 
-motor MotorL2(PORT3, true);
-motor MotorL3(PORT11, false);
-motor MotorL4(PORT12, true);
+motor MotorL1(PORT14, true); 
+motor MotorL2(PORT18, false);
+motor MotorL3(PORT19, false);
+motor MotorL4(PORT20, true);
 motor_group Left(MotorL1, MotorL2, MotorL3, MotorL4);
 
 // Motores del lado derecho (puertos 7-10)
-motor MotorR1(PORT4, true);
-motor MotorR2(PORT5, false);
-motor MotorR3(PORT2, true);
-motor MotorR4(PORT6, false);
+motor MotorR1(PORT7, false);
+motor MotorR2(PORT8, true);
+motor MotorR3(PORT9, true);
+motor MotorR4(PORT10, false);
 motor_group Right(MotorR1, MotorR2, MotorR3, MotorR4);
 
 // Motor para el sistema de recolección
-motor Rec1(PORT1, true);
-motor Rec2(PORT14, false);
+motor Rec1(PORT6, true);
+motor Rec2(PORT5, false);
 motor_group Recolector(Rec1, Rec2);
-motor Rampa(PORT7, true);
-motor Escalada1(PORT17, true);
-motor Escalada2(PORT19, false);
-motor Escalada3(PORT20, true);
-motor Escalada4(PORT16, false);
-motor_group Escalada(Escalada1, Escalada2, Escalada3, Escalada4);
+motor Rampa(PORT12, true);
+motor Garra(PORT13, true);
 
 
 vex::pneumatics Pinza(Brain.ThreeWirePort.A);
 vex::pneumatics RecolectorNeumatica(Brain.ThreeWirePort.B);
-vex::pneumatics Brazo(Brain.ThreeWirePort.C);
+
+triport expansor(PORT16);
+vex::pneumatics brazo(expansor.C);

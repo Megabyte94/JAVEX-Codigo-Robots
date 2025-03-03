@@ -54,20 +54,47 @@ void autonomous(void) {
     moveParabolicN(17.5, 100, 40, 100);
     moveParabolicNC(5, 100, 60, 100);
     recoleccion(100, 4);
-    moveDistanceN(20, -100);
-    
-  /*moveParabolic(40, -100, -40);
-  Pinza.open();
-  rotateOnAxis(10, -100);
-  recoleccion(100, 2);
-  //rotateOnAxis(20, -100);
-  moveParabolicN(15, 40, 100, 100);
-  moveParabolicNC(10, 60, 100, 100);
-  recoleccion(100, 4);
-  moveDistanceN(13, -100);
-  rotateOnAxis(26, -100);
-  moveParabolicN(30, 90, 100, 100);
-  moveParabolicNC(20, 90, 100, 100);*/
+    moveDistanceN(15, -100);
+    rotateOnAxis(26, 100);
+    moveParabolicN(50, 100, 50, 100);
+    moveParabolicNC(20, 100, 55, 100);
+    recoleccion(85, 2); 
+    moveDistance(16, -100);
+    rotateOnAxis(20.5, -100);
+    moveParabolicN(40, 100, 100, 100);
+    moveParabolicNC(10, 100, 100, 100);
+    recoleccion(85, 1.25);
+
+
+    /* moveDistanceV(2,10,100);
+    moveDistanceV(2,-10,100);
+    moveParabolic(40, -100, -40);
+    Pinza.open();
+    rotateOnAxis(10, -100);
+    recoleccion(85, 2);
+    //moveParabolicN(17.5, 40, 100, 100);
+    //moveParabolicNC(5, 60, 100, 100);
+    moveParabolicN(15.5, 40, 100, 100);
+    moveParabolicNC(15, 12, 20, 100);
+    recoleccion(85, 4);
+    moveDistanceN(15, -100);
+    rotateOnAxis(26, -100);
+    moveParabolicN(50, 100, 80, 100);
+    moveParabolicNC(20, 100, 95, 100); 
+    recoleccion(85, 2);
+    moveDistance(16, -100);
+    rotateOnAxis(20.5, -100);
+    moveParabolicN(40, 100, 100, 100);
+    moveParabolicNC(10, 100, 100, 100);
+    recoleccion(85, 1);
+    moveDistanceV(30, -100, 85);
+    rotateOnAxis(45, 100);
+    moveDistance(50, 100);
+    rotateOnAxis(32, 100);
+    moveDistance(10, 100);
+    brazo.open();    
+    moveDistance(25, 100);
+    rotateOnAxis(40, 100); */
 
 }
 

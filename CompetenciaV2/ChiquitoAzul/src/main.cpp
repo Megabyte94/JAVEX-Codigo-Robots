@@ -2,7 +2,7 @@
 /*                                                                            */
 /*    Module:       main.cpp                                                  */
 /*    Author:       kenneth_busta                                             */
-/*    Created:      2/20/2025, 8:13:40 AM                                     */
+/*    Created:      2/20/2025, 7:53:55 AM                                     */
 /*    Description:  V5 project                                                */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
@@ -47,55 +47,34 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-    moveParabolic(40, -100, -40);
-    Pinza.open();
-    rotateOnAxis(10, -100);
-    recoleccion(85, 2);
-    moveParabolicN(17.5, 40, 100, 100);
-    moveParabolicNC(5, 60, 100, 100);
-    recoleccion(85, 4);
-    moveDistanceN(13, -100);
-    rotateOnAxis(26, -100);
-    moveParabolicN(50, 100, 70, 100);
-    moveParabolicNC(20, 100, 85, 100); 
-    recoleccion(85, 2);
-    moveDistance(14, -100);
-    rotateOnAxis(21, -100);
-    moveParabolicN(40, 100, 100, 100);
-    moveParabolicNC(12, 100, 100, 100);
-    recoleccion(85, 0.5);
-    moveDistanceV(30, -100, 85);
-    rotateOnAxis(45, 100);
-    moveDistance(45, 100);
-    rotateOnAxis(30, 100);
-    brazo.open();    
-    moveDistance(20, 100);
-    rotateOnAxis(40, 100);
-    /*moveParabolic(40, -100, -40);
-    Pinza.open();
-    rotateOnAxis(10, -100);
-    recoleccion(85, 2);
-    moveParabolicN(17.5, 40, 100, 100);
-    moveParabolicNC(5, 60, 100, 100);
-    recoleccion(85, 4);
-    moveDistanceN(13, -100);
-    rotateOnAxis(26, -100);
-    moveParabolicN(50, 100, 70, 100);
-    moveParabolicNC(20, 100, 85, 100); 
-    recoleccion(85, 2);
-    moveDistance(14, -100);
-    rotateOnAxis(21, -100);
-    moveParabolicN(40, 100, 100, 100);
-    moveParabolicNC(12, 100, 100, 100);
-    recoleccion(85, 0.5);
-    moveDistanceV(30, -100, 85);
-    rotateOnAxis(45, 100);
-    moveDistance(45, 100);
-    rotateOnAxis(30, 100);
-    brazo.open();    
-    moveDistance(20, 100);
-    rotateOnAxis(40, 100);*/
+  /*moveParabolic(42, 80, 50);
+  rotateOnAxisN(55, 100);*/
 
+  RecolectorNeumatica.open();
+  //wait(15000,msec);
+  activarMotorFantasma(100, 10);
+  //moveDistance(27.5, -100);
+  moveParabolic(39, -100, -85);
+  rotateOnAxis(22, -100);
+  //moveDistance(15,-100);
+  moveParabolic(30, -65, -100);
+
+  recoleccion(100, 2);
+  recoleccion(-100, 1);
+  moveParabolic(45, 80, 100);
+
+    /* RecolectorNeumatica.open();
+    //wait(10000,msec);
+    garrita(100, 10);
+    //moveDistance(27.5, -100);
+    moveParabolic(42.5, -100, -100);
+    rotateOnAxis(19, 100);
+    //moveDistance(15,-100);
+    moveParabolic(30, -100, -80);
+    recoleccion(-100, 2);
+    recoleccion(100, 2);
+    moveParabolic(25, 100, 80);
+    moveParabolic(25, 100, 80); */
 }
 
 /*---------------------------------------------------------------------------*/
@@ -112,52 +91,53 @@ void usercontrol(void) {
   // User control code here, inside the loop
   while (true) {
     // Cambiar el modo de control con el botón A
-    if (Controller1.ButtonY.pressing()) {
+    if (Controller1.ButtonA.pressing()) {
         switchControlMode();
         while (Controller1.ButtonA.pressing()) {
             // Esperar a que se suelte el botón A
             task::sleep(10);
         }
     }
-
+    
     // Control del robot basado en el modo seleccionado
     if (controlMode == 0) {
-        twoJoysticksControl();
-    }else if(controlMode == 1){
-        joystickNewControl(); 
+        twoJoysticksControl(); 
     }
-
+  
     // Control del motor recolector y rampa usando L1 y L2
     if (Controller1.ButtonL1.pressing()) {
-        Recolector.spin(directionType::fwd, 100, velocityUnits::pct);
-        Rampa.spin(directionType::fwd, 100, velocityUnits::pct);
-    } else if (Controller1.ButtonL2.pressing()) {
         Recolector.spin(directionType::rev, 100, velocityUnits::pct);
         Rampa.spin(directionType::rev, 100, velocityUnits::pct);
+        //Recolector2.spin(directionType::rev, 100, velocityUnits::pct);
+    } else if (Controller1.ButtonL2.pressing()) {
+        Recolector.spin(directionType::fwd, 100, velocityUnits::pct);
+        Rampa.spin(directionType::fwd, 100, velocityUnits::pct);
+        //Recolector2.spin(directionType::fwd, 100, velocityUnits::pct);
     } else {
         Recolector.stop(brakeType::hold);
         Rampa.stop(brakeType::hold);
+        //Recolector2.stop(brakeType::hold);
     }
-
+  
     // Control del motor recolector y rampa usando L1 y L2
-    if (Controller1.ButtonX.pressing()) {
-        Garra.spin(directionType::fwd, 100, velocityUnits::pct);
-    } else if (Controller1.ButtonA.pressing()) {
-        Garra.spin(directionType::rev, 100, velocityUnits::pct);
+    if (Controller1.ButtonDown.pressing()) {
+        Escalada.spin(directionType::fwd, 100, velocityUnits::pct);
+    } else if (Controller1.ButtonY.pressing()) {
+        Escalada.spin(directionType::rev, 100, velocityUnits::pct);
     } else {
-        Garra.stop(brakeType::hold);
+        Escalada.stop(brakeType::hold);
     }
-
+  
     if(Controller1.ButtonR2.pressing())
     {
         // Esperamos a que el botón sea liberado para evitar múltiples activaciones en una sola pulsación
         while(Controller1.ButtonR2.pressing()) {
             // Espera a que el botón se suelte
         }
-
+  
         // Cambiamos el estado del pistón
         pistonAbierto = !pistonAbierto;
-        
+              
         // Ejecutamos la acción correspondiente
         if(pistonAbierto) {
             Pinza.open();
@@ -165,34 +145,47 @@ void usercontrol(void) {
             Pinza.close();
         }
     }
-
+  
     if(Controller1.ButtonR1.pressing())
     {
-        RecolectorNeumatica.open();
-    }else{RecolectorNeumatica.close();}
-
+        // Esperamos a que el botón sea liberado para evitar múltiples activaciones en una sola pulsación
+        while(Controller1.ButtonR1.pressing()) {
+            // Espera a que el botón se suelte
+        }
+  
+        // Cambiamos el estado del pistón
+        pistonAbierto = !pistonAbierto;
+              
+        // Ejecutamos la acción correspondiente
+        if(pistonAbierto) {
+            RecolectorNeumatica.open();
+        } else {
+            RecolectorNeumatica.close();
+        }
+    }
     if(Controller1.ButtonB.pressing())
     {
         // Esperamos a que el botón sea liberado para evitar múltiples activaciones en una sola pulsación
         while(Controller1.ButtonB.pressing()) {
             // Espera a que el botón se suelte
         }
-
+  
         // Cambiamos el estado del pistón
         pistonAbierto = !pistonAbierto;
-        
+              
         // Ejecutamos la acción correspondiente
         if(pistonAbierto) {
-            brazo.open();
+            Brazo.open();
         } else {
-            brazo.close();
+            Brazo.close();
         }
     }
-  }   
-
-
-  // Espera para evitar saturar el CPU
-  wait(20, msec);
+  
+  
+  
+    // Espera para evitar saturar el CPU
+    wait(20, msec);
+  }
 }
 
 //
